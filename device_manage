@@ -1,33 +1,39 @@
 from google.oauth2.service_account import Credentials
 import gspread
 import time
+
+
 time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-local_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-
-
- 
+local_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 scope = ['https://www.googleapis.com/auth/spreadsheets']
- 
+#憑證cre.json須附在同資料夾
 creds = Credentials.from_service_account_file("cre.json", scopes=scope)
 gs = gspread.authorize(creds)
+project_list = ['Atomic_dock', 'X11_Unit', 'X10_Unit ']
 
 
-name=input('請輸入借用人姓名  :')
-device=int(input('請輸入Device類型編號: 1.Atomic_dock  2.X11_Unit  3.X10_Unit   :'))
-number=input('物品編號 :')
-project_list=['Atomic_dock','X11_Unit','X10_Unit ']
-print(f'借用人:{name} ,借用 {project_list[device]}: {number}')
 
+def borrow_device(name,device,number):
+    name = input('請輸入借用人姓名  :')
+    device = int(input('請輸入Device類型編號: 1.Atomic_dock  2.X11_Unit  3.X10_Unit   :'))
+    while device not in range(1,4) :
+        print("無此編號")
+        device = int(input('請輸入Device類型編號: 1.Atomic_dock  2.X11_Unit  3.X10_Unit   :'))
+    else:
+        number = input('物品編號 :')
+    confirm=input(f'借用人:{name} ,借用 {project_list[device]}: {number}\n 1.確定 2.取消')
 
-sheet = gs.open_by_url('https://docs.google.com/spreadsheets/d/1YlEJ54LZNOczBYSVhAoeT-qcbTc6oVChLLk1wYkf43U/edit#gid=0')
-sheet = sheet.get_worksheet(device-1)
-time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-local_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+    sheet = gs.open_by_url('https://docs.google.com/spreadsheets/d/1YlEJ54LZNOczBYSVhAoeT-qcbTc6oVChLLk1wYkf43U/edit#gid=0')
+    sheet = sheet.get_worksheet(device - 1)
+    time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+    local_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+    history =""
 
+    cell = sheet.find(number)
+    if sheet.acell(f'B{cell.row}').value is not None:
+        history=history+(sheet.acell(f'B{cell.row}').value)+" "+(sheet.acell(f'C{cell.row}').value)
+    else:
+        history=""
+    return sheet.update(f'B{cell.row}:F{cell.row}',[[name, local_time, history, sheet.acell(f'D{cell.row}').value,sheet.acell(f'E{cell.row}').value]])
 
-history=[]
-cell = sheet.find(number)
-history.append(sheet.acell(f'B{cell.row}').value)
-history.append(sheet.acell(f'C{cell.row}').value)
-sheet.update(f'B{cell.row}:F{cell.row}', [[name,local_time,str(history),sheet.acell(f'D{cell.row}').value,sheet.acell(f'E{cell.row}').value]])
 
