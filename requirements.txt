@@ -1,0 +1,2 @@
+google-api-python-client==2.42.0
+gspread==5.3.0
