@@ -1,6 +1,5 @@
 from google.oauth2.service_account import Credentials
 import gspread
-import pandas as pd
 import time
 time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 local_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
@@ -13,13 +12,15 @@ creds = Credentials.from_service_account_file("cre.json", scopes=scope)
 gs = gspread.authorize(creds)
 
 
-name=input('請輸入借用人姓名')
-project=int(input('請輸入專案:1.Atomic_dock 2.Salomon_TBT4'))
-number=input('物品編號')
-project_list=['Atomic_dock','Salomon_TBT4']
+name=input('請輸入借用人姓名  :')
+device=int(input('請輸入Device類型編號: 1.Atomic_dock  2.X11_Unit  3.X10_Unit   :'))
+number=input('物品編號 :')
+project_list=['Atomic_dock','X11_Unit','X10_Unit ']
+print(f'借用人:{name} ,借用 {project_list[device]}: {number}')
+
 
 sheet = gs.open_by_url('https://docs.google.com/spreadsheets/d/1YlEJ54LZNOczBYSVhAoeT-qcbTc6oVChLLk1wYkf43U/edit#gid=0')
-sheet = sheet.get_worksheet(project-1)
+sheet = sheet.get_worksheet(device-1)
 time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 local_time=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 
@@ -29,3 +30,4 @@ cell = sheet.find(number)
 history.append(sheet.acell(f'B{cell.row}').value)
 history.append(sheet.acell(f'C{cell.row}').value)
 sheet.update(f'B{cell.row}:F{cell.row}', [[name,local_time,str(history),sheet.acell(f'D{cell.row}').value,sheet.acell(f'E{cell.row}').value]])
+
